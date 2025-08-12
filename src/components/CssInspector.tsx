@@ -1,36 +1,41 @@
-import { useMemo, useState, useEffect } from 'react'
-import type { Node } from '../types'
-import { findNodeById } from '../lib/nodes'
+import { useMemo, useState, useEffect } from 'react';
+import type { Node } from '../types';
+import { findNodeById } from '../lib/nodes';
 
 type Props = {
-  nodes: Node[]
-  selectedId?: string
-  onChange: (nodeId: string, key: string, value: string) => void
-}
+  nodes: Node[];
+  selectedId?: string;
+  onChange: (nodeId: string, key: string, value: string) => void;
+};
 
 type CssRule = {
-  id: string
-  selector: string
-  properties: CssProperty[]
-}
+  id: string;
+  selector: string;
+  properties: CssProperty[];
+};
 
 type CssProperty = {
-  id: string
-  name: string
-  value: string
-  enabled: boolean
-}
+  id: string;
+  name: string;
+  value: string;
+  enabled: boolean;
+};
 
 export default function CssInspector({ nodes, selectedId, onChange }: Props) {
-  const node = useMemo(() => (selectedId ? findNodeById(nodes, selectedId) : undefined), [nodes, selectedId])
-  const [cssRules, setCssRules] = useState<CssRule[]>([])
-  const [newProperty, setNewProperty] = useState('')
-  const [newValue, setNewValue] = useState('')
+  const node = useMemo(
+    () => (selectedId ? findNodeById(nodes, selectedId) : undefined),
+    [nodes, selectedId]
+  );
+  const [cssRules, setCssRules] = useState<CssRule[]>([]);
+  const [newProperty, setNewProperty] = useState('');
+  const [newValue, setNewValue] = useState('');
 
   // Initialize CSS rules for the selected node if none exist
   const shouldInitializeRules = useMemo(() => {
-    return selectedId && !cssRules.find(rule => rule.selector.includes(selectedId))
-  }, [selectedId, cssRules])
+    return (
+      selectedId && !cssRules.find(rule => rule.selector.includes(selectedId))
+    );
+  }, [selectedId, cssRules]);
 
   // Initialize rules when needed
   useEffect(() => {
@@ -39,150 +44,182 @@ export default function CssInspector({ nodes, selectedId, onChange }: Props) {
         id: `rule-${selectedId}`,
         selector: `#${selectedId}`,
         properties: [
-          { id: 'prop-1', name: 'display', value: node.display || 'block', enabled: true },
-          { id: 'prop-2', name: 'width', value: `${node.width}px`, enabled: true },
-          { id: 'prop-3', name: 'height', value: `${node.height}px`, enabled: true },
-          { id: 'prop-4', name: 'background', value: node.background || 'transparent', enabled: true },
-          { id: 'prop-5', name: 'color', value: node.color || '#000000', enabled: true },
-          { id: 'prop-6', name: 'border', value: node.border || 'none', enabled: true },
+          {
+            id: 'prop-1',
+            name: 'display',
+            value: String(node.display || 'block'),
+            enabled: true,
+          },
+          {
+            id: 'prop-2',
+            name: 'width',
+            value: `${node.width}px`,
+            enabled: true,
+          },
+          {
+            id: 'prop-3',
+            name: 'height',
+            value: `${node.height}px`,
+            enabled: true,
+          },
+          {
+            id: 'prop-4',
+            name: 'background',
+            value: String(node.background || 'transparent'),
+            enabled: true,
+          },
+          {
+            id: 'prop-5',
+            name: 'color',
+            value: String(node.color || '#000000'),
+            enabled: true,
+          },
+          {
+            id: 'prop-6',
+            name: 'border',
+            value: String(node.border || 'none'),
+            enabled: true,
+          },
           { id: 'prop-7', name: 'position', value: 'absolute', enabled: true },
           { id: 'prop-8', name: 'left', value: `${node.x}px`, enabled: true },
           { id: 'prop-9', name: 'top', value: `${node.y}px`, enabled: true },
-        ]
-      }
-      setCssRules([defaultRule])
+        ],
+      };
+      setCssRules([defaultRule]);
     }
-  }, [shouldInitializeRules, node, selectedId])
+  }, [shouldInitializeRules, node, selectedId]);
 
-  const currentRule = useMemo(() => 
-    cssRules.find(rule => rule.selector.includes(selectedId || '')), 
+  const currentRule = useMemo(
+    () => cssRules.find(rule => rule.selector.includes(selectedId || '')),
     [cssRules, selectedId]
-  )
+  );
 
   const handlePropertyChange = (propertyId: string, newValue: string) => {
-    if (!currentRule || !node) return
-    
+    if (!currentRule || !node) return;
+
     const updatedRules = cssRules.map(rule => {
       if (rule.id === currentRule.id) {
         return {
           ...rule,
-          properties: rule.properties.map(prop => 
+          properties: rule.properties.map(prop =>
             prop.id === propertyId ? { ...prop, value: newValue } : prop
-          )
-        }
+          ),
+        };
       }
-      return rule
-    })
-    
-    setCssRules(updatedRules)
-    
+      return rule;
+    });
+
+    setCssRules(updatedRules);
+
     // Apply the change to the node
-    const property = currentRule.properties.find(p => p.id === propertyId)
+    const property = currentRule.properties.find(p => p.id === propertyId);
     if (property) {
-      onChange(node.id, property.name, newValue)
+      onChange(node.id, property.name, newValue);
     }
-  }
+  };
 
   const handlePropertyToggle = (propertyId: string) => {
-    if (!currentRule || !node) return
-    
+    if (!currentRule || !node) return;
+
     const updatedRules = cssRules.map(rule => {
       if (rule.id === currentRule.id) {
         return {
           ...rule,
-          properties: rule.properties.map(prop => 
+          properties: rule.properties.map(prop =>
             prop.id === propertyId ? { ...prop, enabled: !prop.enabled } : prop
-          )
-        }
+          ),
+        };
       }
-      return rule
-    })
-    
-    setCssRules(updatedRules)
-    
+      return rule;
+    });
+
+    setCssRules(updatedRules);
+
     // Apply the change to the node
-    const property = currentRule.properties.find(p => p.id === propertyId)
+    const property = currentRule.properties.find(p => p.id === propertyId);
     if (property) {
       if (property.enabled) {
         // Disable the property
-        onChange(node.id, property.name, '')
+        onChange(node.id, property.name, '');
       } else {
         // Enable the property
-        onChange(node.id, property.name, property.value)
+        onChange(node.id, property.name, property.value);
       }
     }
-  }
+  };
 
   const addNewProperty = () => {
-    if (!currentRule || !newProperty.trim() || !newValue.trim() || !node) return
-    
+    if (!currentRule || !newProperty.trim() || !newValue.trim() || !node)
+      return;
+
     const newProp: CssProperty = {
       id: `prop-${Date.now()}`,
       name: newProperty.trim(),
       value: newValue.trim(),
-      enabled: true
-    }
-    
+      enabled: true,
+    };
+
     const updatedRules = cssRules.map(rule => {
       if (rule.id === currentRule.id) {
         return {
           ...rule,
-          properties: [...rule.properties, newProp]
-        }
+          properties: [...rule.properties, newProp],
+        };
       }
-      return rule
-    })
-    
-    setCssRules(updatedRules)
-    onChange(node.id, newProp.name, newProp.value)
-    setNewProperty('')
-    setNewValue('')
-  }
+      return rule;
+    });
+
+    setCssRules(updatedRules);
+    onChange(node.id, newProp.name, newProp.value);
+    setNewProperty('');
+    setNewValue('');
+  };
 
   const deleteProperty = (propertyId: string) => {
-    if (!currentRule || !node) return
-    
-    const property = currentRule.properties.find(p => p.id === propertyId)
+    if (!currentRule || !node) return;
+
+    const property = currentRule.properties.find(p => p.id === propertyId);
     if (property) {
-      onChange(node.id, property.name, '')
+      onChange(node.id, property.name, '');
     }
-    
+
     const updatedRules = cssRules.map(rule => {
       if (rule.id === currentRule.id) {
         return {
           ...rule,
-          properties: rule.properties.filter(p => p.id !== propertyId)
-        }
+          properties: rule.properties.filter(p => p.id !== propertyId),
+        };
       }
-      return rule
-    })
-    
-    setCssRules(updatedRules)
-  }
+      return rule;
+    });
+
+    setCssRules(updatedRules);
+  };
 
   const updateSelector = (newSelectorValue: string) => {
-    if (!currentRule) return
-    
+    if (!currentRule) return;
+
     const updatedRules = cssRules.map(rule => {
       if (rule.id === currentRule.id) {
-        return { ...rule, selector: newSelectorValue }
+        return { ...rule, selector: newSelectorValue };
       }
-      return rule
-    })
-    
-    setCssRules(updatedRules)
-  }
+      return rule;
+    });
 
+    setCssRules(updatedRules);
+  };
 
   if (!node) {
     return (
       <div className="flex items-center justify-center h-full text-gray-500">
         <div className="text-center">
           <div className="text-lg mb-2">Select an element</div>
-          <div className="text-sm">Choose an element from the tree to inspect its styles</div>
+          <div className="text-sm">
+            Choose an element from the tree to inspect its styles
+          </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -196,7 +233,6 @@ export default function CssInspector({ nodes, selectedId, onChange }: Props) {
           </div>
         </div>
         <div className="text-sm text-gray-600 mb-3">{node.name}</div>
-        
       </div>
 
       {/* Content */}
@@ -207,11 +243,13 @@ export default function CssInspector({ nodes, selectedId, onChange }: Props) {
               {/* CSS Rule Header */}
               <div className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-md">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-sm font-medium text-gray-700">Selector:</span>
+                  <span className="text-sm font-medium text-gray-700">
+                    Selector:
+                  </span>
                   <input
                     type="text"
                     value={currentRule.selector}
-                    onChange={(e) => updateSelector(e.target.value)}
+                    onChange={e => updateSelector(e.target.value)}
                     className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded font-mono focus:outline-none focus:ring-1 focus:ring-blue-500"
                     placeholder="e.g., #id, .class, element"
                   />
@@ -223,8 +261,11 @@ export default function CssInspector({ nodes, selectedId, onChange }: Props) {
 
               {/* CSS Properties */}
               <div className="space-y-2 mb-4">
-                {currentRule.properties.map((prop) => (
-                  <div key={prop.id} className="group hover:bg-gray-50 rounded border border-transparent hover:border-gray-200 transition-colors">
+                {currentRule.properties.map(prop => (
+                  <div
+                    key={prop.id}
+                    className="group hover:bg-gray-50 rounded border border-transparent hover:border-gray-200 transition-colors"
+                  >
                     <div className="p-3">
                       <div className="flex items-center gap-3">
                         <input
@@ -235,9 +276,11 @@ export default function CssInspector({ nodes, selectedId, onChange }: Props) {
                         />
                         <div className="flex-1 min-w-0 flex">
                           <div className="flex items-center gap-2 mb-2">
-                            <span 
+                            <span
                               className={`font-mono text-sm ${
-                                prop.enabled ? 'text-blue-700' : 'text-gray-400 line-through'
+                                prop.enabled
+                                  ? 'text-blue-700'
+                                  : 'text-gray-400 line-through'
                               }`}
                             >
                               {prop.name}
@@ -247,8 +290,10 @@ export default function CssInspector({ nodes, selectedId, onChange }: Props) {
                           <input
                             type="text"
                             value={prop.value}
-                            onChange={(e) => handlePropertyChange(prop.id, e.target.value)}
-                            className={`w-full px-3 py-2 w-auto text-sm border-none rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono ${
+                            onChange={e =>
+                              handlePropertyChange(prop.id, e.target.value)
+                            }
+                            className={`px-3 py-2 w-auto text-sm border-none rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono ${
                               prop.enabled ? '' : 'opacity-50'
                             }`}
                             disabled={!prop.enabled}
@@ -259,8 +304,18 @@ export default function CssInspector({ nodes, selectedId, onChange }: Props) {
                           className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 p-1.5 rounded hover:bg-red-50 transition-all"
                           title="Delete property"
                         >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M6 18L18 6M6 6l12 12"
+                            />
                           </svg>
                         </button>
                       </div>
@@ -271,20 +326,22 @@ export default function CssInspector({ nodes, selectedId, onChange }: Props) {
 
               {/* Add New Property */}
               <div className="p-3 border border-gray-200 rounded-md bg-gray-50">
-                <div className="text-sm font-medium text-gray-700 mb-2">Add new property</div>
+                <div className="text-sm font-medium text-gray-700 mb-2">
+                  Add new property
+                </div>
                 <div className="flex gap-2 w-full">
                   <input
                     type="text"
                     placeholder="property"
                     value={newProperty}
-                    onChange={(e) => setNewProperty(e.target.value)}
+                    onChange={e => setNewProperty(e.target.value)}
                     className="px-2 w-[32%] py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                   />
                   <input
                     type="text"
                     placeholder="value"
                     value={newValue}
-                    onChange={(e) => setNewValue(e.target.value)}
+                    onChange={e => setNewValue(e.target.value)}
                     className="px-2 w-[32%] py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                   />
                   <button
@@ -299,9 +356,14 @@ export default function CssInspector({ nodes, selectedId, onChange }: Props) {
               {/* CSS Preview */}
               <div className="mt-4 p-3 bg-gray-900 text-green-400 rounded-md">
                 <div className="text-xs font-mono">
-                  <div>{currentRule.selector} {'{'}</div>
+                  <div>
+                    {currentRule.selector} {'{'}
+                  </div>
                   {currentRule.properties.map(prop => (
-                    <div key={prop.id} className={`ml-4 ${prop.enabled ? '' : 'line-through opacity-50'}`}>
+                    <div
+                      key={prop.id}
+                      className={`ml-4 ${prop.enabled ? '' : 'line-through opacity-50'}`}
+                    >
                       &nbsp;&nbsp;{prop.name}: {prop.value};
                     </div>
                   ))}
@@ -313,7 +375,5 @@ export default function CssInspector({ nodes, selectedId, onChange }: Props) {
         </div>
       </div>
     </div>
-  )
+  );
 }
-
-

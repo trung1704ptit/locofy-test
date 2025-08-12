@@ -1,41 +1,41 @@
-export type NodeType = 'Div' | 'Input' | 'Image' | 'Button'
+import { CSSProperties } from 'react';
+
+export type NodeType = 'Div' | 'Input' | 'Image' | 'Button';
 
 export type Node = {
-  id: string
-  x: number
-  y: number
-  name: string
-  type: NodeType
-  width: number
-  height: number
-  
+  id: string;
+  x: number;
+  y: number;
+  name: string;
+  type: NodeType;
+  width: number;
+  height: number;
+
   // Layout properties
-  display?: string
-  position?: string
-  zIndex?: number
-  
+  display?: CSSProperties['display'];
+  position?: CSSProperties['position'];
+  zIndex?: CSSProperties['zIndex'];
+
   // Box model properties
-  margin?: string
-  padding?: string
-  border?: string
-  borderRadius?: string
-  
+  margin?: CSSProperties['margin'];
+  padding?: CSSProperties['padding'];
+  border?: CSSProperties['border'];
+  borderRadius?: CSSProperties['borderRadius'];
+
   // Visual properties
-  background?: string
-  color?: string
-  fontSize?: string
-  fontFamily?: string
-  fontWeight?: string
-  textAlign?: string
-  
+  background?: CSSProperties['background'];
+  color?: CSSProperties['color'];
+  fontSize?: CSSProperties['fontSize'];
+  fontFamily?: CSSProperties['fontFamily'];
+  fontWeight?: CSSProperties['fontWeight'];
+  textAlign?: CSSProperties['textAlign'];
+
   // Content
-  text?: string
-  
+  text?: string;
+
   // Children and styles
-  children: Node[]
-  styles?: Record<string, string>
-}
+  children: Node[];
+  styles?: CSSProperties; // now typed to actual CSS keys
+};
 
-export type ComponentLabels = Record<string, string>
-
-
+export type ComponentLabels = Record<string, string>;
