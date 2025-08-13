@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import CanvasPreview from '@/components/CanvasPreview';
+import CssInspector from '@/components/CssInspector';
+import TreeView from '@/components/TreeView';
+import { mockNodes } from '@/data/mockNodes';
+import { computeComponentLabels, updateNodeById } from '@/lib/nodes';
+import type { Node } from '@/types';
 import { useMemo, useState } from 'react';
-import type { Node } from './types';
-import { mockNodes } from './data/mockNodes';
-import { computeComponentLabels, updateNodeById } from './lib/nodes';
-import TreeView from './components/TreeView';
-import CanvasPreview from './components/CanvasPreview';
-import CssInspector from './components/CssInspector';
 
 function App() {
   const [nodes, setNodes] = useState<Node[]>(mockNodes);

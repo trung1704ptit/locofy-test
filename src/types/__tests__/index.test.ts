@@ -1,4 +1,4 @@
-import type { Node, NodeType } from '../index';
+import type { Node, NodeType } from '@/types';
 
 describe('Type definitions', () => {
   describe('NodeType', () => {

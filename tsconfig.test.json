@@ -3,7 +3,17 @@
   "compilerOptions": {
     "types": ["jest", "node"],
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@/components/*": ["src/components/*"],
+      "@/constants/*": ["src/constants/*"],
+      "@/config/*": ["src/config/*"],
+      "@/lib/*": ["src/lib/*"],
+      "@/types/*": ["src/types/*"],
+      "@/data/*": ["src/data/*"]
+    }
   },
   "include": [
     "src/**/*",

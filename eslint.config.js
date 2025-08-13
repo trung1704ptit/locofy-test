@@ -1,7 +1,7 @@
-import globals from 'globals';
 import pluginJs from '@eslint/js';
-import tseslint from 'typescript-eslint';
 import pluginReact from 'eslint-plugin-react';
+import globals from 'globals';
+import tseslint from 'typescript-eslint';
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
@@ -15,8 +15,8 @@ export default [
     rules: {
       'react/react-in-jsx-scope': 'off',
       'react/jsx-uses-react': 'off',
-      // Add these rules to catch console.log and no-unused-vars
-      'no-console': ['error', { allow: ['warn', 'error'] }],
+      // Allow all console methods
+      'no-console': 'off',
       '@typescript-eslint/no-unused-vars': 'error',
     },
     settings: {

@@ -1,3 +1,4 @@
+import { INPUT_SETTINGS, Z_INDEX } from '@/constants';
 import {
   forwardRef,
   useEffect,
@@ -37,7 +38,11 @@ export const Input = forwardRef<InputRef, CommonInputProps>(
     },
     ref
   ) => {
-    const [width, setWidth] = useState(value.length > 0 ? value.length + 2 : 3);
+    const [width, setWidth] = useState(
+      value.length > 0
+        ? value.length + INPUT_SETTINGS.WIDTH_PADDING
+        : INPUT_SETTINGS.MIN_WIDTH
+    );
     const [inputValue, setInputValue] = useState(value);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>(
@@ -119,14 +124,18 @@ export const Input = forwardRef<InputRef, CommonInputProps>(
         setShowSuggestions(false);
         setIsFocusing(false);
         onChangeValue(id, inputValue);
-      }, 150);
+      }, INPUT_SETTINGS.BLUR_DELAY);
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const val = e.target.value;
       setInputValue(val);
       // Calculate width based on text length plus some padding
-      setWidth(val.length > 0 ? val.length + 2 : 3);
+      setWidth(
+        val.length > 0
+          ? val.length + INPUT_SETTINGS.WIDTH_PADDING
+          : INPUT_SETTINGS.MIN_WIDTH
+      );
       setHasUserTyped(true); // Mark that user has typed
     };
 
@@ -136,7 +145,7 @@ export const Input = forwardRef<InputRef, CommonInputProps>(
         if (showSuggestions && filteredSuggestions.length > 0) {
           const selectedValue = filteredSuggestions[selectedIndex];
           setInputValue(selectedValue);
-          setWidth(selectedValue.length + 2);
+          setWidth(selectedValue.length + INPUT_SETTINGS.WIDTH_PADDING);
           setShowSuggestions(false);
           onChangeValue(id, selectedValue);
         } else {
@@ -166,7 +175,7 @@ export const Input = forwardRef<InputRef, CommonInputProps>(
           e.preventDefault();
           const selectedValue = filteredSuggestions[selectedIndex];
           setInputValue(selectedValue);
-          setWidth(selectedValue.length + 2);
+          setWidth(selectedValue.length + INPUT_SETTINGS.WIDTH_PADDING);
           setShowSuggestions(false);
           onChangeValue(id, selectedValue);
         }
@@ -184,7 +193,7 @@ export const Input = forwardRef<InputRef, CommonInputProps>(
 
     const handleSuggestionClick = (suggestion: string) => {
       setInputValue(suggestion);
-      setWidth(suggestion.length + 2);
+      setWidth(suggestion.length + INPUT_SETTINGS.WIDTH_PADDING);
       setShowSuggestions(false);
       onChangeValue(id, suggestion);
     };
@@ -214,8 +223,12 @@ export const Input = forwardRef<InputRef, CommonInputProps>(
         {showSuggestions && filteredSuggestions.length > 0 && (
           <div
             ref={suggestionsRef}
-            className="absolute z-50 w-64 max-h-48 overflow-y-auto bg-white border border-gray-200 rounded-md shadow-lg text-sm"
-            style={{ top: '100%', left: 0 }}
+            className="absolute w-64 max-h-48 overflow-y-auto bg-white border border-gray-200 rounded-md shadow-lg text-sm"
+            style={{
+              top: '100%',
+              left: 0,
+              zIndex: Z_INDEX.SUGGESTIONS_DROPDOWN,
+            }}
           >
             {filteredSuggestions.map((suggestion, index) => (
               <div

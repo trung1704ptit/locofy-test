@@ -1,5 +1,5 @@
+import type { Node } from '@/types';
 import { useState } from 'react';
-import type { Node } from '../../types';
 
 type Props = {
   nodes: Node[];

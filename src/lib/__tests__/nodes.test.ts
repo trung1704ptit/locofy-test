@@ -1,5 +1,5 @@
-import { mockNodes } from '../../data/mockNodes';
-import type { Node } from '../../types';
+import { mockNodes } from '@/data/mockNodes';
+import type { Node } from '@/types';
 import {
   computeComponentLabels,
   findNodeById,

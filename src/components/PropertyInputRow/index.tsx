@@ -1,4 +1,5 @@
-import { useRef } from 'react';
+import { EVENTS } from '@/constants';
+import { useEffect, useRef } from 'react';
 import { Input, InputRef } from './Input';
 
 interface Property {
@@ -31,6 +32,28 @@ export function PropertyInputRow({
 }: Props) {
   const nameInputRef = useRef<InputRef>(null);
   const valueInputRef = useRef<InputRef>(null);
+
+  // Listen for focus events
+  useEffect(() => {
+    const handleFocusEvent = (event: CustomEvent) => {
+      if (event.detail.propertyId === prop.id) {
+        // Focus on the property name input
+        nameInputRef.current?.focus();
+      }
+    };
+
+    window.addEventListener(
+      EVENTS.FOCUS_EMPTY_PROPERTY,
+      handleFocusEvent as EventListener
+    );
+
+    return () => {
+      window.removeEventListener(
+        EVENTS.FOCUS_EMPTY_PROPERTY,
+        handleFocusEvent as EventListener
+      );
+    };
+  }, [prop.id]);
 
   const focusValueInput = () => {
     valueInputRef.current?.focus();
