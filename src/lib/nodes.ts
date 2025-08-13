@@ -42,20 +42,79 @@ export function computeComponentLabels(nodes: Node[]): Record<string, string> {
   const nodeIdToLabel: Record<string, string> = {};
   let counter = 1;
 
-  // Collect all nodes with children and assign labels
-  const collect = (nodes: Node[]) => {
+  // Helper function to get a signature for a node's structure
+  const getStructureSignature = (node: Node): string => {
+    if (!node.children || node.children.length === 0) return '';
+
+    // Create a signature based on the types and count of children
+    const childCounts = new Map<string, number>();
+    node.children.forEach(child => {
+      childCounts.set(child.type, (childCounts.get(child.type) || 0) + 1);
+    });
+
+    const childSignature = Array.from(childCounts.entries())
+      .map(([type, count]) => `${type}:${count}`)
+      .sort()
+      .join('|');
+
+    return `${node.type}=>[${childSignature}]`;
+  };
+
+  // Group nodes by their level and structure
+  const levelGroups = new Map<number, Map<string, string[]>>();
+
+  const traverseWithLevel = (nodes: Node[], level: number = 0) => {
+    // Skip root level (level 0) - no labels for root
+    if (level === 0) {
+      // Just traverse children without assigning labels
+      nodes.forEach(node => {
+        if (node.children && node.children.length > 0) {
+          traverseWithLevel(node.children, level + 1);
+        }
+      });
+      return;
+    }
+
+    // Collect nodes at this level by their structure
+    const levelNodes = new Map<string, string[]>();
+
+    // Process all nodes at this level, including those without children
     for (const node of nodes) {
       if (node.children && node.children.length > 0) {
-        // Assign label to this node
-        nodeIdToLabel[node.id] = `C${counter++}`;
+        const signature = getStructureSignature(node);
+
+        if (!levelNodes.has(signature)) {
+          levelNodes.set(signature, []);
+        }
+        levelNodes.get(signature)!.push(node.id);
 
         // Continue traversing children
-        collect(node.children);
+        traverseWithLevel(node.children, level + 1);
+      } else {
+        // Also traverse children of nodes without children (in case they have deeper children)
+        if (node.children && node.children.length > 0) {
+          traverseWithLevel(node.children, level + 1);
+        }
       }
+    }
+
+    // If we found nodes at this level, store them
+    if (levelNodes.size > 0) {
+      levelGroups.set(level, levelNodes);
     }
   };
 
-  collect(nodes);
+  traverseWithLevel(nodes);
+
+  // Assign labels based on level and structure
+  levelGroups.forEach(levelGroup => {
+    levelGroup.forEach(nodeIds => {
+      const label = `C${counter++}`;
+      nodeIds.forEach(nodeId => {
+        nodeIdToLabel[nodeId] = label;
+      });
+    });
+  });
 
   return nodeIdToLabel;
 }
