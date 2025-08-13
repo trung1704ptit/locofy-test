@@ -1,6 +1,6 @@
-import { useMemo, useState, useEffect } from 'react';
-import type { Node } from '../../types';
+import { useEffect, useMemo, useState } from 'react';
 import { findNodeById } from '../../lib/nodes';
+import type { Node } from '../../types';
 import { PropertyInputRow } from './../PropertyInputRow';
 
 type Props = {

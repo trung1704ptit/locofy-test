@@ -98,7 +98,6 @@ export function nodeToStyle(node: Node): CSSProperties {
     color: node.color,
     border: node.border,
     boxSizing: 'border-box',
-    ...(node.styles || {}),
   };
 
   if (node.type === 'Div') {

@@ -3,9 +3,9 @@ import { useMemo, useState } from 'react';
 import type { Node } from './types';
 import { mockNodes } from './data/mockNodes';
 import { computeComponentLabels, updateNodeById } from './lib/nodes';
-import TreeView from './components/TreeView.tsx';
-import CanvasPreview from './components/CanvasPreview/index.tsx';
-import CssInspector from './components/CssInspector/index.tsx';
+import TreeView from './components/TreeView';
+import CanvasPreview from './components/CanvasPreview';
+import CssInspector from './components/CssInspector';
 
 function App() {
   const [nodes, setNodes] = useState<Node[]>(mockNodes);

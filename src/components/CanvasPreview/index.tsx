@@ -1,6 +1,6 @@
 import type React from 'react';
-import type { Node } from '../../types';
 import { nodeToStyle } from '../../lib/nodes';
+import type { Node } from '../../types';
 
 type Props = {
   nodes: Node[];
