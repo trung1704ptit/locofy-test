@@ -41,47 +41,21 @@ export function updateNodeById(
 export function computeComponentLabels(nodes: Node[]): Record<string, string> {
   const nodeIdToLabel: Record<string, string> = {};
   let counter = 1;
-  const structureGroups = new Map<string, string[]>(); // sig -> node ids
 
-  // Create a unique "signature" for the node's structure
-  const getStructureSignature = (node: Node): string => {
-    const childrenSig = (node.children || [])
-      .map(getStructureSignature)
-      .join('|');
-    return `${node.type}(${childrenSig})`;
-  };
-
-  // Collect only nodes WITH children
+  // Collect all nodes with children and assign labels
   const collect = (nodes: Node[]) => {
     for (const node of nodes) {
       if (node.children && node.children.length > 0) {
-        const sig = getStructureSignature(node);
-        if (!structureGroups.has(sig)) {
-          structureGroups.set(sig, []);
-        }
-        structureGroups.get(sig)!.push(node.id);
+        // Assign label to this node
+        nodeIdToLabel[node.id] = `C${counter++}`;
 
+        // Continue traversing children
         collect(node.children);
-      } else {
-        // Still traverse in case children deeper match
-        if (node.children && node.children.length > 0) {
-          collect(node.children);
-        }
       }
     }
   };
 
   collect(nodes);
-
-  // Assign labels only for groups with duplicates
-  for (const [, ids] of structureGroups) {
-    if (ids.length > 1) {
-      const label = `C${counter++}`;
-      ids.forEach(id => {
-        nodeIdToLabel[id] = label;
-      });
-    }
-  }
 
   return nodeIdToLabel;
 }
