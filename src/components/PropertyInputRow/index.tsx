@@ -94,10 +94,7 @@ export function PropertyInputRow({
           onChangeValue={handlePropertyChange}
           suggestions={cssValues[prop.name] || commonValues}
           placeholder=""
-          onTabNext={() => {
-            // For now, just stay in the current row
-            // Could be enhanced to move to next property row later
-          }}
+          onTabNext={() => {}}
           onTabPrev={focusNameInput}
         />
         ;

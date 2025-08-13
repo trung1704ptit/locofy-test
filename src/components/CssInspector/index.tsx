@@ -10,11 +10,6 @@ import { findNodeById } from '@/lib/nodes';
 import type { Node } from '@/types';
 import { useEffect, useMemo, useState } from 'react';
 
-// Remove the old constants since they're now imported
-// const CSS_PROPERTIES = [...]
-// const CSS_VALUES = {...}
-// const COMMON_VALUES = [...]
-
 type Props = {
   nodes: Node[];
   selectedId?: string;

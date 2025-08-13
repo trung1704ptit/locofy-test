@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "description": "React + TypeScript + Vite + Tailwind CSS + ESLint + Prettier + Husky + Lint-Staged Template",
   "type": "module",
+  "homepage": "https://trung1704.github.io/locofy-test",
   "repository": {
     "type": "git",
     "url": "https://github.com/trung1704/locofy-test.git"
@@ -24,7 +25,8 @@
     "fix-all": "npm run lint:fix && npm run format",
     "type-check": "tsc --noEmit --incremental",
     "upgrade": "npx npm-check-updates -u && npm install",
-    "prepare": "husky"
+    "prepare": "husky",
+    "deploy": "npm run build && gh-pages -d dist"
   },
   "keywords": [],
   "author": "Yousif Abozid",
