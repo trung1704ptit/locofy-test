@@ -230,15 +230,17 @@ describe('nodes utility functions', () => {
       const node = mockNodes[0].children[2].children[0]; // Node 3 -> Button 1
       const styles = nodeToStyle(node);
 
-      expect(styles.borderRadius).toBe(8);
+      // Let CSS handle defaults naturally - no forced borderRadius
+      expect(styles.borderRadius).toBeUndefined();
     });
 
     it('should apply default styles for Div type', () => {
       const node = mockNodes[0].children[2]; // Node 3
       const styles = nodeToStyle(node);
 
-      expect(styles.borderRadius).toBe(8);
-      expect(styles.padding).toBe(8);
+      // Let CSS handle defaults naturally - no forced values
+      expect(styles.borderRadius).toBeUndefined();
+      expect(styles.padding).toBeUndefined();
     });
   });
 });

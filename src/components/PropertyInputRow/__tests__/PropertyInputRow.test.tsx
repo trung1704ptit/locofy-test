@@ -22,7 +22,7 @@ jest.mock('@/constants', () => ({
 describe('PropertyInputRow', () => {
   const defaultProps = {
     prop: {
-      id: 'prop-1',
+      id: 'test-prop',
       name: 'color',
       value: 'red',
       enabled: true,
@@ -31,12 +31,10 @@ describe('PropertyInputRow', () => {
     handlePropertyNameChange: jest.fn(),
     handlePropertyToggle: jest.fn(),
     onRemove: jest.fn(),
-    cssProperties: ['color', 'background', 'font-size'],
-    cssValues: {
-      color: ['red', 'blue', 'green'],
-      background: ['white', 'black'],
-    },
-    commonValues: ['inherit', 'initial', 'unset'],
+    onConfirmChange: jest.fn(),
+    cssProperties: ['color', 'background'],
+    cssValues: { color: ['red', 'blue'] },
+    commonValues: ['inherit', 'initial'],
   };
 
   beforeEach(() => {

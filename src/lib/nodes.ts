@@ -115,22 +115,43 @@ export function nodeToStyle(node: Node): CSSProperties {
     boxSizing: 'border-box',
   };
 
+  // Apply all CSS properties from the node
+  if (node.padding !== undefined) {
+    style.padding = node.padding;
+  }
+  if (node.margin !== undefined) {
+    style.margin = node.margin;
+  }
+  if (node.borderRadius !== undefined) {
+    style.borderRadius = node.borderRadius;
+  }
+  if (node.fontSize !== undefined) {
+    style.fontSize = node.fontSize;
+  }
+  if (node.fontFamily !== undefined) {
+    style.fontFamily = node.fontFamily;
+  }
+  if (node.fontWeight !== undefined) {
+    style.fontWeight = node.fontWeight;
+  }
+  if (node.textAlign !== undefined) {
+    style.textAlign = node.textAlign;
+  }
+  if (node.zIndex !== undefined) {
+    style.zIndex = node.zIndex;
+  }
+
   if (node.type === 'Div') {
     if (node.text) {
       style.display = style.display || 'flex';
       style.alignItems = style.alignItems || 'center';
       style.justifyContent = style.justifyContent || 'center';
     }
-    if (style.borderRadius === undefined) {
-      style.borderRadius = 8;
-    }
-    style.padding = style.padding ?? 8;
+    // Let CSS handle defaults naturally - no forced values
   }
 
   if (node.type === 'Button' || node.type === 'Image') {
-    if (style.borderRadius === undefined) {
-      style.borderRadius = 8;
-    }
+    // Let CSS handle defaults naturally - no forced values
   }
 
   return style;

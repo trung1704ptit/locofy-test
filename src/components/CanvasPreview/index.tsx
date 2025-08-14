@@ -1,18 +1,52 @@
 import { APP_CONFIG } from '@/constants';
 import { nodeToStyle } from '@/lib/nodes';
 import type { Node } from '@/types';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 type Props = {
   nodes: Node[];
   selectedId?: string;
   onSelect: (id: string) => void;
+  cssRules?: Array<{
+    selector: string;
+    properties: Array<{
+      name: string;
+      value: string;
+      enabled: boolean;
+    }>;
+  }>;
 };
 
-export default function CanvasPreview({ nodes, selectedId, onSelect }: Props) {
+export default function CanvasPreview({
+  nodes,
+  selectedId,
+  onSelect,
+  cssRules = [],
+}: Props) {
   const [zoom, setZoom] = useState<number>(
     APP_CONFIG.canvasPreview.defaultZoom
   );
+
+  // Generate CSS rules for the canvas
+  const cssStyles = useMemo(() => {
+    if (!cssRules.length) return '';
+
+    const cssText = cssRules
+      .map(rule => {
+        const enabledProperties = rule.properties.filter(prop => prop.enabled);
+        if (enabledProperties.length === 0) return '';
+
+        const propertiesText = enabledProperties
+          .map(prop => `  ${prop.name}: ${prop.value};`)
+          .join('\n');
+
+        return `${rule.selector} {\n${propertiesText}\n}`;
+      })
+      .filter(rule => rule.length > 0)
+      .join('\n\n');
+
+    return cssText;
+  }, [cssRules]);
 
   const handleZoomIn = () => {
     setZoom(prev =>
@@ -34,6 +68,9 @@ export default function CanvasPreview({ nodes, selectedId, onSelect }: Props) {
 
   return (
     <div className="w-full h-full relative overflow-hidden">
+      {/* CSS Styles */}
+      {cssStyles && <style>{cssStyles}</style>}
+
       {/* Zoom Controls */}
       <div className="absolute top-4 right-4 z-10 flex flex-col gap-2">
         <button
@@ -94,6 +131,7 @@ function RenderNode({
   const isSelected = selectedId === node.id;
 
   const commonProps = {
+    id: node.id, // Add ID for CSS targeting
     className: `${isSelected ? 'outline outline-2 outline-indigo-500' : ''}`,
     style: {
       ...style,

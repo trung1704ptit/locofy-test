@@ -10,6 +10,16 @@ import { useMemo, useState } from 'react';
 function App() {
   const [nodes, setNodes] = useState<Node[]>(mockNodes);
   const [selectedId, setSelectedId] = useState<string | undefined>();
+  const [cssRules, setCssRules] = useState<
+    Array<{
+      selector: string;
+      properties: Array<{
+        name: string;
+        value: string;
+        enabled: boolean;
+      }>;
+    }>
+  >([]);
 
   const componentLabels = useMemo(() => computeComponentLabels(nodes), [nodes]);
 
@@ -25,19 +35,49 @@ function App() {
     newKey: string | undefined;
     newVal: string | undefined;
   }) => {
-    setNodes(prev =>
-      updateNodeById(prev, nodeId, n => {
-        const updated: Node = { ...n };
-        if (oldKey && (updated as Record<string, any>)[oldKey] !== undefined) {
-          delete (updated as Record<string, any>)[oldKey];
+    console.log('handleStyleChange called:', {
+      nodeId,
+      oldKey,
+      newKey,
+      newVal,
+    });
+
+    setNodes(prev => {
+      const updated = updateNodeById(prev, nodeId, n => {
+        const updatedNode: Node = { ...n };
+        if (
+          oldKey &&
+          (updatedNode as Record<string, any>)[oldKey] !== undefined
+        ) {
+          console.log('Deleting old property:', oldKey);
+          delete (updatedNode as Record<string, any>)[oldKey];
         }
 
         if (newKey) {
-          (updated as Record<string, any>)[newKey] = newVal;
+          console.log('Setting new property:', newKey, '=', newVal);
+          (updatedNode as Record<string, any>)[newKey] = newVal;
         }
-        return updated;
-      })
-    );
+
+        console.log('Updated node:', updatedNode);
+        return updatedNode;
+      });
+
+      console.log('Updated nodes:', updated);
+      return updated;
+    });
+  };
+
+  const handleCssRulesChange = (
+    newCssRules: Array<{
+      selector: string;
+      properties: Array<{
+        name: string;
+        value: string;
+        enabled: boolean;
+      }>;
+    }>
+  ) => {
+    setCssRules(newCssRules);
   };
 
   return (
@@ -62,6 +102,7 @@ function App() {
             nodes={nodes}
             selectedId={selectedId}
             onSelect={setSelectedId}
+            cssRules={cssRules}
           />
         </div>
       </div>
@@ -70,6 +111,7 @@ function App() {
           nodes={nodes}
           selectedId={selectedId}
           onChange={handleStyleChange}
+          onCssRulesChange={handleCssRulesChange}
         />
       </div>
     </div>

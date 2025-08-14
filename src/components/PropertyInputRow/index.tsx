@@ -15,6 +15,7 @@ interface Props {
   handlePropertyNameChange: (id: string, name: string) => void;
   handlePropertyToggle: (id: string) => void;
   onRemove: () => void;
+  onConfirmChange: (id: string) => void; // New callback
   cssProperties: string[];
   cssValues: Record<string, string[]>;
   commonValues: string[];
@@ -26,6 +27,7 @@ export function PropertyInputRow({
   handlePropertyNameChange,
   handlePropertyToggle,
   onRemove,
+  onConfirmChange,
   cssProperties,
   cssValues,
   commonValues,
@@ -80,6 +82,7 @@ export function PropertyInputRow({
           value={prop.name}
           enabled={prop.enabled}
           onChangeValue={handlePropertyNameChange}
+          onConfirmChange={onConfirmChange}
           textClass={prop.enabled ? 'text-red-400' : ''}
           suggestions={cssProperties}
           placeholder=""
@@ -92,6 +95,7 @@ export function PropertyInputRow({
           value={prop.value}
           enabled={prop.enabled}
           onChangeValue={handlePropertyChange}
+          onConfirmChange={onConfirmChange}
           suggestions={cssValues[prop.name] || commonValues}
           placeholder=""
           onTabNext={() => {}}

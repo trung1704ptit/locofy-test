@@ -11,6 +11,7 @@ export const mockNodes: Node[] = [
     height: 800,
     background: '#ffffff',
     border: '1px solid #ddd',
+    borderRadius: '8px',
     children: [
       {
         id: 'text-1',
@@ -21,6 +22,7 @@ export const mockNodes: Node[] = [
         width: 100,
         height: 24,
         text: 'Text 1',
+        borderRadius: '8px',
         children: [],
       },
       {
@@ -33,6 +35,7 @@ export const mockNodes: Node[] = [
         height: 90,
         background: '#f4c23a',
         text: 'Text 2',
+        borderRadius: '8px',
         children: [],
       },
       {
@@ -44,6 +47,7 @@ export const mockNodes: Node[] = [
         width: 560,
         height: 160,
         background: '#16a34a',
+        borderRadius: '8px',
         children: [
           {
             id: 'btn-1',
@@ -56,6 +60,7 @@ export const mockNodes: Node[] = [
             background: '#0ea5e9',
             color: '#fff',
             text: 'Button 1',
+            borderRadius: '8px',
             children: [],
           },
           {
@@ -68,6 +73,7 @@ export const mockNodes: Node[] = [
             height: 60,
             background: '#e9d5ff',
             text: 'Image 1',
+            borderRadius: '8px',
             children: [],
           },
         ],
@@ -81,6 +87,7 @@ export const mockNodes: Node[] = [
         width: 560,
         height: 160,
         background: '#16a34a',
+        borderRadius: '8px',
         children: [
           {
             id: 'btn-2',
@@ -93,6 +100,7 @@ export const mockNodes: Node[] = [
             background: '#0ea5e9',
             color: '#fff',
             text: 'Button 2',
+            borderRadius: '8px',
             children: [],
           },
           {
@@ -105,6 +113,7 @@ export const mockNodes: Node[] = [
             height: 60,
             background: '#e9d5ff',
             text: 'Image 2',
+            borderRadius: '8px',
             children: [],
           },
         ],

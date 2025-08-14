@@ -12,6 +12,7 @@ interface CommonInputProps {
   value: string;
   enabled?: boolean;
   onChangeValue: (id: string, value: string) => void;
+  onConfirmChange?: (id: string) => void; // New callback for when change is confirmed
   textClass?: string;
   suggestions?: string[];
   placeholder?: string;
@@ -30,6 +31,7 @@ export const Input = forwardRef<InputRef, CommonInputProps>(
       value,
       enabled = true,
       onChangeValue,
+      onConfirmChange,
       textClass = '',
       suggestions = [],
       placeholder = '',
@@ -53,6 +55,7 @@ export const Input = forwardRef<InputRef, CommonInputProps>(
     const suggestionsRef = useRef<HTMLDivElement>(null);
     const [isFocusing, setIsFocusing] = useState(false);
     const [hasUserTyped, setHasUserTyped] = useState(false);
+    const [hasBeenModified, setHasBeenModified] = useState(false);
 
     useImperativeHandle(ref, () => ({
       focus: () => inputRef.current?.focus(),
@@ -85,6 +88,13 @@ export const Input = forwardRef<InputRef, CommonInputProps>(
         setFilteredSuggestions([]);
       }
     }, [inputValue, suggestions, hasUserTyped]);
+
+    // Real-time updates when inputValue changes
+    useEffect(() => {
+      if (hasUserTyped && inputValue !== value) {
+        onChangeValue(id, inputValue);
+      }
+    }, [inputValue, hasUserTyped, id, onChangeValue, value]);
 
     // Ensure suggestions are hidden when component mounts with empty value
     useEffect(() => {
@@ -124,6 +134,12 @@ export const Input = forwardRef<InputRef, CommonInputProps>(
         setShowSuggestions(false);
         setIsFocusing(false);
         onChangeValue(id, inputValue);
+
+        // Only call onConfirmChange if the user has actually modified the property
+        if (hasBeenModified) {
+          onConfirmChange?.(id);
+          setHasBeenModified(false); // Reset the flag
+        }
       }, INPUT_SETTINGS.BLUR_DELAY);
     };
 
@@ -137,6 +153,7 @@ export const Input = forwardRef<InputRef, CommonInputProps>(
           : INPUT_SETTINGS.MIN_WIDTH
       );
       setHasUserTyped(true); // Mark that user has typed
+      setHasBeenModified(true); // Mark that the property has been modified
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -148,8 +165,12 @@ export const Input = forwardRef<InputRef, CommonInputProps>(
           setWidth(selectedValue.length + INPUT_SETTINGS.WIDTH_PADDING);
           setShowSuggestions(false);
           onChangeValue(id, selectedValue);
+          onConfirmChange?.(id);
+          setHasBeenModified(false); // Reset the flag
         } else {
           onChangeValue(id, inputValue);
+          onConfirmChange?.(id);
+          setHasBeenModified(false); // Reset the flag
         }
         setIsFocusing(false);
         inputRef.current?.blur();
@@ -163,9 +184,7 @@ export const Input = forwardRef<InputRef, CommonInputProps>(
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
         if (showSuggestions && filteredSuggestions.length > 0) {
-          setSelectedIndex(prev =>
-            prev > 0 ? prev - 1 : filteredSuggestions.length - 1
-          );
+          setSelectedIndex(prev => (prev > 0 ? prev - 1 : prev));
         }
       } else if (e.key === 'Escape') {
         setShowSuggestions(false);
@@ -178,9 +197,11 @@ export const Input = forwardRef<InputRef, CommonInputProps>(
           setWidth(selectedValue.length + INPUT_SETTINGS.WIDTH_PADDING);
           setShowSuggestions(false);
           onChangeValue(id, selectedValue);
+          onConfirmChange?.(id);
+          setHasBeenModified(false); // Reset the flag
         }
 
-        // Handle Tab navigation
+        // Handle Tab navigation - don't call onConfirmChange for tab navigation
         if (e.shiftKey) {
           e.preventDefault();
           onTabPrev?.();
@@ -196,6 +217,9 @@ export const Input = forwardRef<InputRef, CommonInputProps>(
       setWidth(suggestion.length + INPUT_SETTINGS.WIDTH_PADDING);
       setShowSuggestions(false);
       onChangeValue(id, suggestion);
+      // Always call onConfirmChange when a suggestion is selected
+      onConfirmChange?.(id);
+      setHasBeenModified(false); // Reset the flag
     };
 
     console.log('showSuggestions', showSuggestions);

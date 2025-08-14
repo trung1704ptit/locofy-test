@@ -26,6 +26,16 @@ type Props = {
     newKey: string | undefined;
     newVal: string | undefined;
   }) => void;
+  onCssRulesChange?: (
+    cssRules: Array<{
+      selector: string;
+      properties: Array<{
+        name: string;
+        value: string;
+        enabled: boolean;
+      }>;
+    }>
+  ) => void;
 };
 
 type CssRule = {
@@ -41,12 +51,22 @@ type CssProperty = {
   enabled: boolean;
 };
 
-export default function CssInspector({ nodes, selectedId, onChange }: Props) {
+export default function CssInspector({
+  nodes,
+  selectedId,
+  onChange,
+  onCssRulesChange,
+}: Props) {
   const node = useMemo(
     () => (selectedId ? findNodeById(nodes, selectedId) : undefined),
     [nodes, selectedId]
   );
   const [cssRules, setCssRules] = useState<CssRule[]>([]);
+
+  // Call onCssRulesChange whenever cssRules change
+  useEffect(() => {
+    onCssRulesChange?.(cssRules);
+  }, [cssRules, onCssRulesChange]);
 
   const shouldInitializeRules = useMemo(() => {
     return (
@@ -56,6 +76,27 @@ export default function CssInspector({ nodes, selectedId, onChange }: Props) {
 
   useEffect(() => {
     if (shouldInitializeRules && node) {
+      // Test CSS.supports for common properties
+      console.log('Testing CSS.supports:');
+      console.log(
+        'padding: 10px ->',
+        typeof CSS !== 'undefined' && CSS.supports
+          ? CSS.supports('padding', '10px')
+          : 'CSS.supports not available'
+      );
+      console.log(
+        'margin: 20px ->',
+        typeof CSS !== 'undefined' && CSS.supports
+          ? CSS.supports('margin', '20px')
+          : 'CSS.supports not available'
+      );
+      console.log(
+        'color: red ->',
+        typeof CSS !== 'undefined' && CSS.supports
+          ? CSS.supports('color', 'red')
+          : 'CSS.supports not available'
+      );
+
       const defaultRule: CssRule = {
         id: `rule-${selectedId}`,
         selector: `#${selectedId}`,
@@ -119,45 +160,35 @@ export default function CssInspector({ nodes, selectedId, onChange }: Props) {
       newValue,
       propertyName: property?.name,
       currentProperties: currentRule.properties,
+      nodeId: node.id,
+      nodeType: node.type,
     });
+
+    // Convert kebab-case CSS property names to camelCase for the Node type
+    const camelCaseKey = property?.name
+      ? property.name.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())
+      : undefined;
+    const oldCamelCaseKey = property?.name
+      ? property.name.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())
+      : undefined;
 
     onChange({
       nodeId: node.id,
-      oldKey: property?.name,
+      oldKey: oldCamelCaseKey,
       oldVal: property?.value,
-      newKey: property?.name,
+      newKey: camelCaseKey,
       newVal: newValue,
     });
 
-    // Check if this property name already exists (excluding the current property)
-    const existingProperty = currentRule.properties.find(
-      p => p.id !== propertyId && p.name.trim() === property?.name.trim()
-    );
-
-    console.log('existingProperty found in value change:', existingProperty);
-
-    // Validate the property when value changes
-    const valid =
-      property?.name.trim() && newValue.trim()
-        ? CSS.supports(property.name, newValue)
-        : true;
-
+    // Update the property value immediately without validation
     const updatedRules = cssRules.map(rule =>
       rule.id === currentRule.id
         ? {
             ...rule,
             properties: rule.properties.map(prop => {
               if (prop.id === propertyId) {
-                // Update the current property
-                return { ...prop, value: newValue, enabled: valid };
-              } else if (existingProperty && prop.id === existingProperty.id) {
-                // Disable the existing duplicate property
-                console.log(
-                  'Disabling duplicate property in value change:',
-                  prop.id,
-                  prop.name
-                );
-                return { ...prop, enabled: false };
+                // Update the current property without validation
+                return { ...prop, value: newValue };
               }
               return prop;
             }),
@@ -179,43 +210,31 @@ export default function CssInspector({ nodes, selectedId, onChange }: Props) {
       currentProperties: currentRule.properties,
     });
 
+    // Convert kebab-case CSS property names to camelCase for the Node type
+    const oldCamelCaseKey = property?.name
+      ? property.name.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())
+      : undefined;
+    const newCamelCaseKey = newName
+      ? newName.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())
+      : undefined;
+
     onChange({
       nodeId: node.id,
-      oldKey: property?.name,
+      oldKey: oldCamelCaseKey,
       oldVal: property?.value,
-      newKey: newName,
+      newKey: newCamelCaseKey,
       newVal: property.value,
     });
 
-    // Check if this property name already exists (excluding the current property)
-    const existingProperty = currentRule.properties.find(
-      p => p.id !== propertyId && p.name.trim() === newName.trim()
-    );
-
-    console.log('existingProperty found:', existingProperty);
-
-    // Only validate if both name and value are present
-    const valid =
-      newName.trim() && property.value.trim()
-        ? CSS.supports(newName, property.value)
-        : true;
-
+    // Update the property name immediately without validation
     const updatedRules = cssRules.map(rule =>
       rule.id === currentRule.id
         ? {
             ...rule,
             properties: rule.properties.map(prop => {
               if (prop.id === propertyId) {
-                // Update the current property
-                return { ...prop, name: newName, enabled: valid };
-              } else if (existingProperty && prop.id === existingProperty.id) {
-                // Disable the existing duplicate property
-                console.log(
-                  'Disabling duplicate property:',
-                  prop.id,
-                  prop.name
-                );
-                return { ...prop, enabled: false };
+                // Update the current property without validation
+                return { ...prop, name: newName };
               }
               return prop;
             }),
@@ -254,13 +273,121 @@ export default function CssInspector({ nodes, selectedId, onChange }: Props) {
     if (newProperty?.enabled) {
       newVal = newProperty?.value;
     }
+
+    // Convert kebab-case CSS property names to camelCase for the Node type
+    const oldCamelCaseKey = oldProperty?.name
+      ? oldProperty.name.replace(/-([a-z])/g, (_, letter) =>
+          letter.toUpperCase()
+        )
+      : undefined;
+    const newCamelCaseKey = newProperty?.name
+      ? newProperty.name.replace(/-([a-z])/g, (_, letter) =>
+          letter.toUpperCase()
+        )
+      : undefined;
+
     onChange({
       nodeId: node.id,
-      oldKey: oldProperty?.name,
+      oldKey: oldCamelCaseKey,
       oldVal: oldProperty?.value,
-      newKey: newProperty?.name,
+      newKey: newCamelCaseKey,
       newVal,
     });
+  };
+
+  // Function to handle duplicate properties when a change is finalized
+  const handleDuplicateProperties = (propertyId: string) => {
+    if (!currentRule) return;
+
+    const property = currentRule.properties.find(p => p.id === propertyId);
+    if (!property || !property.name.trim()) return;
+
+    // Validate the CSS property
+    let valid = true;
+    if (property.name.trim() && property.value.trim()) {
+      try {
+        // Use CSS.supports if available, otherwise assume valid
+        valid =
+          typeof CSS !== 'undefined' && CSS.supports
+            ? CSS.supports(property.name, property.value)
+            : true;
+        console.log('CSS validation result:', {
+          propertyName: property.name,
+          value: property.value,
+          valid,
+        });
+      } catch (error) {
+        console.warn('CSS validation error:', error);
+        valid = true; // Assume valid if validation fails
+      }
+    }
+
+    // Find all properties with the same name (excluding the current one)
+    const duplicateProperties = currentRule.properties.filter(
+      p => p.id !== propertyId && p.name.trim() === property.name.trim()
+    );
+
+    if (duplicateProperties.length > 0) {
+      // Only disable existing properties if the new property is valid
+      if (valid) {
+        // Disable all duplicate properties
+        const updatedRules = cssRules.map(rule =>
+          rule.id === currentRule.id
+            ? {
+                ...rule,
+                properties: rule.properties.map(prop => {
+                  if (prop.id === propertyId) {
+                    // Update the current property with validation result
+                    return { ...prop, enabled: valid };
+                  } else if (
+                    duplicateProperties.some(dp => dp.id === prop.id)
+                  ) {
+                    // Disable duplicate properties only if new property is valid
+                    return { ...prop, enabled: false };
+                  }
+                  return prop;
+                }),
+              }
+            : rule
+        );
+        setCssRules(updatedRules);
+      } else {
+        // If new property is invalid, keep existing properties active
+        // and disable the new invalid property
+        const updatedRules = cssRules.map(rule =>
+          rule.id === currentRule.id
+            ? {
+                ...rule,
+                properties: rule.properties.map(prop => {
+                  if (prop.id === propertyId) {
+                    // Disable the invalid new property
+                    return { ...prop, enabled: false };
+                  }
+                  // Keep existing properties active
+                  return prop;
+                }),
+              }
+            : rule
+        );
+        setCssRules(updatedRules);
+      }
+    } else {
+      // No duplicates, just update the current property with validation result
+      const updatedRules = cssRules.map(rule =>
+        rule.id === currentRule.id
+          ? {
+              ...rule,
+              properties: rule.properties.map(prop => {
+                if (prop.id === propertyId) {
+                  return { ...prop, enabled: valid };
+                }
+                return prop;
+              }),
+            }
+          : rule
+      );
+      setCssRules(updatedRules);
+    }
   };
 
   const addNewProperty = () => {
@@ -320,9 +447,16 @@ export default function CssInspector({ nodes, selectedId, onChange }: Props) {
 
     const property = currentRule.properties.find(p => p.id === propertyId);
     if (property) {
+      // Convert kebab-case CSS property names to camelCase for the Node type
+      const camelCaseKey = property.name
+        ? property.name.replace(/-([a-z])/g, (_, letter) =>
+            letter.toUpperCase()
+          )
+        : undefined;
+
       onChange({
         nodeId: node.id,
-        oldKey: property.name,
+        oldKey: camelCaseKey,
         oldVal: property.value,
         newKey: undefined,
         newVal: undefined,
@@ -394,6 +528,7 @@ export default function CssInspector({ nodes, selectedId, onChange }: Props) {
                     handlePropertyNameChange={handlePropertyNameChange}
                     handlePropertyToggle={handlePropertyToggle}
                     onRemove={() => removeProperty(prop.id)}
+                    onConfirmChange={handleDuplicateProperties}
                     cssProperties={CSS_PROPERTIES}
                     cssValues={CSS_VALUES}
                     commonValues={COMMON_VALUES}
